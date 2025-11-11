@@ -1,7 +1,13 @@
 # Precedence Resolver Design
 
 ## Overview
-The Precedence Resolver is responsible for determining the Node.js version to use in a project by consulting multiple sources (e.g., `.nvmrc`, `package.json`, CI/CD YAML files). It supports extensibility, runtime configuration, and granular conflict handling.
+**Original Purpose:**
+The Precedence Resolver was originally designed to determine the Node.js version to use in a project by consulting multiple sources (e.g., `.nvmrc`, `package.json`, CI/CD YAML files).
+
+**Current Design:**
+The Precedence Resolver has evolved into a generic, source-agnostic orchestration system. It can be used to infer or resolve any value from multiple, pluggable sources, with configurable precedence and conflict handling. This makes it suitable for a wide range of use cases beyond Node.js version inference, such as resolving configuration values, environment settings, or any scenario where multiple sources of truth must be orchestrated and conflicts managed.
+
+The design supports extensibility, runtime configuration, and granular conflict handling, making it adaptable for future needs and other domains.
 
 ## Key Features
 - **Pluggable sources:** Register any number of sources implementing a common interface.
