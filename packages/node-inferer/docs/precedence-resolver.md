@@ -32,11 +32,16 @@ classDiagram
       +data: Map~string, string|null~
       +conflicts: List~Conflict~
     }
-    class ResolveOptions {
+    class ResolveOptions~S~ {
       <<interface>>
-      +order: List~string~
-      +conflictStrategy: string
-      +stopOnFirst: bool
+      +order: List~S~
+      +conflictStrategy: ConflictStrategy
+    }
+    class ConflictStrategy {
+      <<enumeration>>
+      REPORT
+      ERROR
+      STOP_ON_FIRST
     }
     class ResolveResult {
       <<interface>>
@@ -44,23 +49,25 @@ classDiagram
       +data: Map~string, string|null~
       +conflicts: List~Conflict~
     }
-    class PrecedenceResolver {
+    class PrecedenceResolver~S~ {
       <<interface>>
-      +registerSource(name: string, provider: SourceProvider|VersionSource|()=>VersionSource|()=>Promise<VersionSource>) PrecedenceResolver
+      +registerSource(name: S, provider: SourceProvider|VersionSource|()=>VersionSource|()=>Promise<VersionSource>) PrecedenceResolver~S~
       +collectAllVersions() CollectResult
-      +resolveVersion(options: ResolveOptions) ResolveResult
+      +resolveVersion(options: ResolveOptions~S~) ResolveResult
       +getConflicts() List~Conflict~
     }
-  PrecedenceResolver ..> CollectResult : returns
-  PrecedenceResolver ..> ResolveResult : returns
-  PrecedenceResolver ..> Conflict : returns
-  PrecedenceResolver ..> SourceProvider : plugin
-  PrecedenceResolver ..> VersionSource : plugin
-  PrecedenceResolver ..> ResolveOptions : uses
+  PrecedenceResolver~S~ ..> CollectResult : returns
+  PrecedenceResolver~S~ ..> ResolveResult : returns
+  PrecedenceResolver~S~ ..> Conflict : returns
+  PrecedenceResolver~S~ ..> SourceProvider : plugin
+  PrecedenceResolver~S~ ..> VersionSource : plugin
+  PrecedenceResolver~S~ ..> ResolveOptions~S~ : uses
   CollectResult o-- Conflict : contains
   ResolveResult o-- Conflict : contains
-```
 
+```
+**Note:**
+S is a generic type parameter that should extend `string` and represents the set of valid source names. It is used for both registering sources and specifying the order in `ResolveOptions~S~`
 ## Example Usage (TypeScript)
 ```ts
 const resolver: PrecedenceResolver = new MyPrecedenceResolver();
@@ -102,5 +109,6 @@ const result = await resolver.resolveVersion({
 ```
 
 ## Notes
-- New sources can be added without modifying the resolver implementation (open/closed principle). Register sources by name and either an instance, a sync factory, or an async factory for maximum flexibility and plugin-style extensibility.
+- New sources can be added without modifying the resolver implementation (open/closed principle). Register sources by name (generic extending string) and either an instance, a sync factory, or an async factory for maximum flexibility and plugin-style extensibility.
 - Different resolver implementations can be created for different strategies (e.g., always pick highest, always stop on first, etc).
+- If a source in the order is not registered, the implementation should either throw an error, warn, or report, depending on the desired strictness. This should be considered in the implementation and configuration.
