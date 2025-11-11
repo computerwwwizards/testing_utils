@@ -51,10 +51,14 @@ classDiagram
       +resolveVersion(options: ResolveOptions) ResolveResult
       +getConflicts() List~Conflict~
     }
-    PrecedenceResolver o-- VersionSource : uses
-    PrecedenceResolver o-- SourceProvider : plugin
-    CollectResult o-- Conflict
-    ResolveResult o-- Conflict
+  PrecedenceResolver ..> CollectResult : returns
+  PrecedenceResolver ..> ResolveResult : returns
+  PrecedenceResolver ..> Conflict : returns
+  PrecedenceResolver ..> SourceProvider : plugin
+  PrecedenceResolver ..> VersionSource : plugin
+  PrecedenceResolver ..> ResolveOptions : uses
+  CollectResult o-- Conflict : contains
+  ResolveResult o-- Conflict : contains
 ```
 
 ## Example Usage (TypeScript)
