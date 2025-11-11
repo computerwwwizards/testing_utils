@@ -76,7 +76,8 @@ classDiagram
 S is a generic type parameter that should extend `string` and represents the set of valid source names. It is used for both registering sources and specifying the order in `ResolveOptions~S~`
 ## Example Usage (TypeScript)
 ```ts
-const resolver: PrecedenceResolver = new MyPrecedenceResolver();
+type SourceName = "nvmrc" | "packageJson" | "ciYaml";
+const resolver: PrecedenceResolver<SourceName> = new MyPrecedenceResolver<SourceName>();
 // Register by instance
 resolver.registerSource("nvmrc", new NvmrcSource());
 // Register by sync factory
@@ -99,8 +100,7 @@ const allVersions = await resolver.collectAllVersions();
 // Resolve the final version with runtime options
 const result = await resolver.resolveVersion({
   order: ["nvmrc", "packageJson", "ciYaml"],
-  conflictStrategy: "warn",
-  stopOnFirst: false
+  conflictStrategy: ConflictStrategy.REPORT
 });
 // result = {
 //   version: "18.16.0",
