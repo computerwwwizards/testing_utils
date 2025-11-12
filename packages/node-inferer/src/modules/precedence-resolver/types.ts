@@ -1,26 +1,26 @@
-export interface Conflict {
-	sources: [SourceName, SourceName];
+export interface Conflict<T extends string = string> {
+	sources: [T, T];
 	values: [string | null, string | null];
 }
 
-export interface CollectResult {
-	data: Record<SourceName, string | null>;
+export interface CollectResult<T extends string = string> {
+	data: Record<T, string | null>;
 	conflicts: Conflict[];
 }
 
-export interface ResolveOptions {
-	order: SourceName[];
+export interface ResolveOptions<T extends string = string> {
+	order: T[];
 	conflictStrategy: ConflictStrategy;
 }
 
-export interface ResolveResult {
+export interface ResolveResult<T extends string = string> {
 	version: string | null;
-	data: Record<SourceName, string | null>;
+	data: Record<T, string | null>;
 	conflicts: Conflict[];
 }
 
-export interface PrecedenceResolver {
-	registerSource(name: SourceName, provider: VersionSource): PrecedenceResolver;
+export interface PrecedenceResolver<T extends string = string> {
+	registerSource(name: T, provider: VersionSource): PrecedenceResolver;
 	collectAllVersions(): Promise<CollectResult>;
 	resolveVersion(options: ResolveOptions): Promise<ResolveResult>;
 	getConflicts(): Promise<Conflict[]>;
@@ -32,7 +32,6 @@ export const enum ConflictStrategy {
 }
 
 export interface VersionSource {
-	name: string;
 	getVersion(): Promise<string | null>;
 }
 
