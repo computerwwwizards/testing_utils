@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { Readable } from 'stream';
-import { NvmrcStreamSource, PackageJsonStreamSource, CiYamlStreamSource } from './streamSources';
+import { NvmrcStreamSource } from './NvmrcStreamSource';
+import { PackageJsonStreamSource } from './PackageJsonStreamSource';
+import { CiYamlStreamSource } from './CiYamlStreamSource';
 
 describe('NvmrcStreamSource', () => {
   it('returns the version from a simple .nvmrc stream', async () => {
@@ -47,7 +49,8 @@ describe('CiYamlStreamSource', () => {
   it('returns the node-version from a CI YAML stream', async () => {
     const yaml = `jobs:\n  build:\n    steps:\n      - name: Setup Node\n        with:\n          node-version: 20.1.0\n`;
     const stream = Readable.from([yaml]);
-    const source = new CiYamlStreamSource(stream);
+    // Path to the version: jobs.build.steps.0.with.node-version
+    const source = new CiYamlStreamSource(stream, 'jobs.build.steps.0.with.node-version');
     const version = await source.getVersion();
     expect(version).toBe('20.1.0');
   });
@@ -55,14 +58,14 @@ describe('CiYamlStreamSource', () => {
   it('returns null if node-version is not present', async () => {
     const yaml = `jobs:\n  build:\n    steps:\n      - name: Setup Node\n`;
     const stream = Readable.from([yaml]);
-    const source = new CiYamlStreamSource(stream);
+    const source = new CiYamlStreamSource(stream, 'jobs.build.steps.0.with.node-version');
     const version = await source.getVersion();
     expect(version).toBeNull();
   });
 
   it('returns null for invalid YAML', async () => {
     const stream = Readable.from(['not: [yaml']);
-    const source = new CiYamlStreamSource(stream);
+    const source = new CiYamlStreamSource(stream, 'jobs.build.steps.0.with.node-version');
     const version = await source.getVersion();
     expect(version).toBeNull();
   });
