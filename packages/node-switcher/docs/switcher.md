@@ -27,8 +27,8 @@ interface SwitchOptions {
   handlerOrder?: string[];
 }
 
-interface NodeSwitcher {
-  register(name: string, handler: NodeSwitchHandler | () => NodeSwitchHandler): NodeSwitcher;
+interface Switcher {
+  register(name: string, handler: NodeSwitchHandler | () => NodeSwitchHandler): Switcher;
   switchVersion(version: string, options?: SwitchOptions): Promise<HandlerAttempt[]>;
 }
 ```
@@ -36,9 +36,9 @@ interface NodeSwitcher {
 ## Basic Usage
 
 ```typescript
-import { NodeSwitcher, NvmHandler, FnmHandler } from 'node-switcher';
+import { Switcher, NvmHandler, FnmHandler } from 'node-switcher';
 
-const switcher = new NodeSwitcher();
+const switcher = new Switcher();
 switcher.register('nvm', new NvmHandler());
 switcher.register('fnm', () => new FnmHandler());
 
