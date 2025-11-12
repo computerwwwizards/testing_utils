@@ -2,29 +2,31 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ConflictStrategy, PrecedenceResolver } from './types';
+import NodeVersionPrecedenceResolver from './NodeVersionPrecedenceResolver';
 
 
 let resolver: PrecedenceResolver | null = null;
 
-describe.skip('PrecedenceResolver (specification)', () => {
-	beforeEach(() => {
-		resolver = null;
-	});
+describe('PrecedenceResolver (specification)', () => {
+		beforeEach(() => {
+			resolver = new NodeVersionPrecedenceResolver();
+		});
 
 	it('registers sources and allows collecting all versions', async () => {
-		expect(resolver).not.toBeNull();
-		resolver!.registerSource('nvmrc', { name: 'nvmrc', getVersion: async () => '18.16.0' });
-		resolver!.registerSource('packageJson', { name: 'packageJson', getVersion: async () => '18.12.0' });
-		resolver!.registerSource('ciYaml', { name: 'ciYaml', getVersion: async () => null });
+		
+	resolver!.registerSource('nvmrc', { getVersion: async () => '18.16.0' });
+	resolver!.registerSource('packageJson', { getVersion: async () => '18.12.0' });
+	resolver!.registerSource('ciYaml', { getVersion: async () => null });
 		const result = await resolver!.collectAllVersions();
 		expect(result.data).toEqual({ nvmrc: '18.16.0', packageJson: '18.12.0', ciYaml: null });
 		expect(result.conflicts.length).toBeGreaterThanOrEqual(0);
 	});
 
 	it('resolves the final version according to precedence order', async () => {
-		expect(resolver).not.toBeNull();
-		resolver!.registerSource('nvmrc', { name: 'nvmrc', getVersion: async () => '18.16.0' });
-		resolver!.registerSource('packageJson', { name: 'packageJson', getVersion: async () => '18.12.0' });
+		
+	resolver!.registerSource('nvmrc', { getVersion: async () => '18.16.0' });
+	resolver!.registerSource('packageJson', { getVersion: async () => '18.12.0' });
+	resolver!.registerSource('ciYaml', { getVersion: async () => null });
 		const result = await resolver!.resolveVersion({
 			order: ['packageJson', 'nvmrc', 'ciYaml'],
 			conflictStrategy: ConflictStrategy.REPORT
@@ -33,9 +35,10 @@ describe.skip('PrecedenceResolver (specification)', () => {
 	});
 
 	it('handles conflicts according to the conflict strategy: REPORT', async () => {
-		expect(resolver).not.toBeNull();
-		resolver!.registerSource('nvmrc', { name: 'nvmrc', getVersion: async () => '18.16.0' });
-		resolver!.registerSource('packageJson', { name: 'packageJson', getVersion: async () => '18.12.0' });
+		
+		resolver!.registerSource('nvmrc', { getVersion: async () => '18.16.0' });
+		resolver!.registerSource('packageJson', { getVersion: async () => '18.12.0' });
+    resolver?.registerSource('ciYaml', {getVersion: ()=>Promise.resolve('15.3.4')})
 		const result = await resolver!.resolveVersion({
 			order: ['nvmrc', 'packageJson', 'ciYaml'],
 			conflictStrategy: ConflictStrategy.REPORT
@@ -44,9 +47,9 @@ describe.skip('PrecedenceResolver (specification)', () => {
 	});
 
 	it('handles conflicts according to the conflict strategy: ERROR', async () => {
-		expect(resolver).not.toBeNull();
-		resolver!.registerSource('nvmrc', { name: 'nvmrc', getVersion: async () => '18.16.0' });
-		resolver!.registerSource('packageJson', { name: 'packageJson', getVersion: async () => '18.12.0' });
+		
+	resolver!.registerSource('nvmrc', { getVersion: async () => '18.16.0' });
+	resolver!.registerSource('packageJson', { getVersion: async () => '18.12.0' });
 		await expect(resolver!.resolveVersion({
 			order: ['nvmrc', 'packageJson', 'ciYaml'],
 			conflictStrategy: ConflictStrategy.ERROR
@@ -54,9 +57,10 @@ describe.skip('PrecedenceResolver (specification)', () => {
 	});
 
 	it('handles conflicts according to the conflict strategy: STOP_ON_FIRST', async () => {
-		expect(resolver).not.toBeNull();
-		resolver!.registerSource('nvmrc', { name: 'nvmrc', getVersion: async () => '18.16.0' });
-		resolver!.registerSource('packageJson', { name: 'packageJson', getVersion: async () => '18.12.0' });
+		
+	resolver!.registerSource('nvmrc', { getVersion: async () => '18.16.0' });
+	resolver!.registerSource('packageJson', { getVersion: async () => '18.12.0' });
+	resolver!.registerSource('ciYaml', { getVersion: async () => null });
 		const result = await resolver!.resolveVersion({
 			order: ['nvmrc', 'packageJson', 'ciYaml'],
 			conflictStrategy: ConflictStrategy.STOP_ON_FIRST
@@ -65,18 +69,18 @@ describe.skip('PrecedenceResolver (specification)', () => {
 	});
 
 	it('returns all discovered versions and conflicts in collectAllVersions', async () => {
-		expect(resolver).not.toBeNull();
-		resolver!.registerSource('nvmrc', { name: 'nvmrc', getVersion: async () => '18.16.0' });
-		resolver!.registerSource('packageJson', { name: 'packageJson', getVersion: async () => '18.12.0' });
-		resolver!.registerSource('ciYaml', { name: 'ciYaml', getVersion: async () => null });
+		
+	resolver!.registerSource('nvmrc', { getVersion: async () => '18.16.0' });
+	resolver!.registerSource('packageJson', { getVersion: async () => '18.12.0' });
+	resolver!.registerSource('ciYaml', { getVersion: async () => null });
 		const result = await resolver!.collectAllVersions();
 		expect(result.data).toEqual({ nvmrc: '18.16.0', packageJson: '18.12.0', ciYaml: null });
 		expect(Array.isArray(result.conflicts)).toBe(true);
 	});
 
 	it('throws, warns, or reports if a source in the order is missing', async () => {
-		expect(resolver).not.toBeNull();
-		resolver!.registerSource('nvmrc', { name: 'nvmrc', getVersion: async () => '18.16.0' });
+		
+	resolver!.registerSource('nvmrc', { getVersion: async () => '18.16.0' });
 		await expect(resolver!.resolveVersion({
 			order: ['nvmrc', 'packageJson', 'ciYaml'],
 			conflictStrategy: ConflictStrategy.REPORT
