@@ -1,6 +1,6 @@
 export enum HandlerStatus {
-  SUCCESS = "success",
-  ERROR = "error"
+  SUCCESS = 'success',
+  ERROR = 'error',
 }
 
 export interface HandlerAttempt {
@@ -25,6 +25,12 @@ export interface SwitchHandler {
 }
 
 export interface Switcher {
-  register(name: string, handler: SwitchHandler | (() => SwitchHandler)): Switcher;
-  switchVersion(version: string, options?: SwitchOptions): Promise<HandlerAttempt[]>;
+  register(
+    name: string,
+    handler: SwitchHandler | (() => SwitchHandler),
+  ): Switcher;
+  switchVersion(
+    version: string,
+    options?: SwitchOptions,
+  ): Promise<HandlerAttempt[]>;
 }

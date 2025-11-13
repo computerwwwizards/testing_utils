@@ -1,9 +1,18 @@
+// Core classes
 
+export { BaseSwitchHandler } from './base-handler';
+export { FnmHandler } from './handlers/fnm-handler';
+
+// Handler implementations
+export { NvmHandler } from './handlers/nvm-handler';
+export { NodeSwitcher } from './node-switcher';
+
+// Types
 export {
-  HandlerStatus,
   type HandlerAttempt,
   type HandlerResult,
-  type SwitchOptions,
+  HandlerStatus,
+  type Switcher,
   type SwitchHandler,
-  type Switcher
+  type SwitchOptions,
 } from './types';

@@ -1,25 +1,46 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import { HandlerStatus, type HandlerAttempt, type SwitchHandler, type Switcher, type SwitchOptions } from './types';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { BaseSwitchHandler } from './base-handler';
+import { NodeSwitcher } from './node-switcher';
+import { type HandlerResult, HandlerStatus, type Switcher } from './types';
 
-let mockSwitcher: Switcher = null as unknown as Switcher;
-let mockHandler: SwitchHandler = null as unknown as SwitchHandler;
+// Mock success handler for testing
+class MockSuccessHandler extends BaseSwitchHandler {
+  async handle(version: string): Promise<HandlerResult> {
+    return {
+      status: HandlerStatus.SUCCESS,
+      message: `Successfully switched to ${version}`,
+    };
+  }
+}
 
-describe.skip('Switcher Behavior', () => {
+// Mock failure handler for testing
+class MockFailureHandler extends BaseSwitchHandler {
+  async handle(_version: string): Promise<HandlerResult> {
+    return {
+      status: HandlerStatus.ERROR,
+      message: 'Handler failed to switch version',
+    };
+  }
+}
+
+describe('Switcher Behavior', () => {
   let switcher: Switcher;
 
   beforeEach(() => {
-    switcher = mockSwitcher;
+    switcher = new NodeSwitcher();
   });
 
   describe('Essential switcher contract', () => {
     it('should register handlers and return self for fluent interface', () => {
-      const result = switcher.register('nvm', mockHandler);
+      const handler = new MockSuccessHandler();
+      const result = switcher.register('nvm', handler);
 
       expect(result).toBe(switcher);
     });
 
     it('should try handler and return success attempt', async () => {
-      switcher.register('nvm', mockHandler);
+      const handler = new MockSuccessHandler();
+      switcher.register('nvm', handler);
 
       const attempts = await switcher.switchVersion('18.17.0');
 
@@ -30,9 +51,10 @@ describe.skip('Switcher Behavior', () => {
     });
 
     it('should try multiple handlers until one succeeds', async () => {
-      switcher
-        .register('nvm', mockHandler)
-        .register('fnm', mockHandler);
+      const failHandler = new MockFailureHandler();
+      const successHandler = new MockSuccessHandler();
+
+      switcher.register('nvm', failHandler).register('fnm', successHandler);
 
       const attempts = await switcher.switchVersion('18.17.0');
 

@@ -1,20 +1,40 @@
 import { describe, expect, it } from 'vitest';
-import { HandlerStatus, type HandlerResult, type SwitchHandler } from './types';
+import { BaseSwitchHandler } from './base-handler';
+import { type HandlerResult, HandlerStatus } from './types';
 
-// Empty mock - will make tests fail initially (Red phase)
-let mockHandler: SwitchHandler = null as unknown as SwitchHandler;
+// Mock success handler for testing
+class MockSuccessHandler extends BaseSwitchHandler {
+  async handle(version: string): Promise<HandlerResult> {
+    return {
+      status: HandlerStatus.SUCCESS,
+      message: `Successfully switched to ${version}`,
+    };
+  }
+}
 
-describe.skip('SwitchHandler Behavior', () => {
+// Mock failure handler for testing
+class MockFailureHandler extends BaseSwitchHandler {
+  async handle(_version: string): Promise<HandlerResult> {
+    return {
+      status: HandlerStatus.ERROR,
+      message: 'Handler failed to switch version',
+    };
+  }
+}
+
+describe('SwitchHandler Behavior', () => {
   describe('Essential handler contract', () => {
     it('should handle version switching with success status', async () => {
-      const result = await mockHandler.handle('18.17.0');
+      const handler = new MockSuccessHandler();
+      const result = await handler.handle('18.17.0');
 
       expect(result.status).toBe(HandlerStatus.SUCCESS);
       expect(result.message).toContain('18.17.0');
     });
 
     it('should handle version switching with error status', async () => {
-      const result = await mockHandler.handle('18.17.0');
+      const handler = new MockFailureHandler();
+      const result = await handler.handle('18.17.0');
 
       expect(result.status).toBe(HandlerStatus.ERROR);
       expect(result.message).toContain('failed');
@@ -23,8 +43,8 @@ describe.skip('SwitchHandler Behavior', () => {
 
   describe('Chain of responsibility', () => {
     it('should support setting next handler and return it', () => {
-      const handler1 = mockHandler;
-      const handler2 = mockHandler;
+      const handler1 = new MockSuccessHandler();
+      const handler2 = new MockFailureHandler();
 
       const returnedHandler = handler1.setNext(handler2);
 
