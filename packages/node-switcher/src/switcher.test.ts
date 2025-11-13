@@ -1,25 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BaseSwitchHandler } from './base-switch-handler';
+import { MockErrorHandler, MockSuccessHandler } from './handler-mocks';
 import { Switcher } from './switcher';
-import { type HandlerResult, HandlerStatus } from './types';
-
-class MockSuccessHandler extends BaseSwitchHandler {
-  async handle(version: string): Promise<HandlerResult> {
-    return {
-      status: HandlerStatus.SUCCESS,
-      message: `Successfully switched to ${version}`,
-    };
-  }
-}
-
-class MockErrorHandler extends BaseSwitchHandler {
-  async handle(_version: string): Promise<HandlerResult> {
-    return {
-      status: HandlerStatus.ERROR,
-      message: 'Handler failed to switch version',
-    };
-  }
-}
+import { HandlerStatus } from './types';
 
 describe('Switcher Behavior', () => {
   let switcher: Switcher;
