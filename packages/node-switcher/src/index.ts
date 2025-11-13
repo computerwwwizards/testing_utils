@@ -1,9 +1,13 @@
-
+export { BaseSwitchHandler } from './base-switch-handler';
+export { AllHandlersFailedError } from './errors';
+export { FnmHandler } from './fnm-handler';
+export { NvmHandler } from './nvm-handler';
+export { Switcher } from './switcher';
 export {
-  HandlerStatus,
   type HandlerAttempt,
   type HandlerResult,
-  type SwitchOptions,
+  HandlerStatus,
+  type Switcher as ISwitcher,
   type SwitchHandler,
-  type Switcher
+  type SwitchOptions,
 } from './types';

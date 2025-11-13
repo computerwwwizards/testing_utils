@@ -28,7 +28,7 @@ interface SwitchOptions {
 }
 
 interface Switcher {
-  register(name: string, handler: NodeSwitchHandler | () => NodeSwitchHandler): Switcher;
+  register(name: string, handler: SwitchHandler | (() => SwitchHandler)): Switcher;
   switchVersion(version: string, options?: SwitchOptions): Promise<HandlerAttempt[]>;
 }
 ```

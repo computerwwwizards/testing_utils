@@ -1,8 +1,8 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import { HandlerStatus, type HandlerAttempt, type SwitchHandler, type Switcher, type SwitchOptions } from './types';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { HandlerStatus, type Switcher, type SwitchHandler } from './types';
 
-let mockSwitcher: Switcher = null as unknown as Switcher;
-let mockHandler: SwitchHandler = null as unknown as SwitchHandler;
+const mockSwitcher: Switcher = null as unknown as Switcher;
+const mockHandler: SwitchHandler = null as unknown as SwitchHandler;
 
 describe.skip('Switcher Behavior', () => {
   let switcher: Switcher;
@@ -30,9 +30,7 @@ describe.skip('Switcher Behavior', () => {
     });
 
     it('should try multiple handlers until one succeeds', async () => {
-      switcher
-        .register('nvm', mockHandler)
-        .register('fnm', mockHandler);
+      switcher.register('nvm', mockHandler).register('fnm', mockHandler);
 
       const attempts = await switcher.switchVersion('18.17.0');
 

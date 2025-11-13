@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { HandlerStatus, type HandlerResult, type SwitchHandler } from './types';
+import { HandlerStatus, type SwitchHandler } from './types';
 
-let mockHandler: SwitchHandler = null as unknown as SwitchHandler;
+const mockHandler: SwitchHandler = null as unknown as SwitchHandler;
 
 describe.skip('SwitchHandler Behavior', () => {
   describe('Essential handler contract', () => {
