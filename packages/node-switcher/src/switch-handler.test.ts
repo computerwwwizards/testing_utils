@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { HandlerStatus, type HandlerResult, type SwitchHandler } from './types';
 
-// Empty mock - will make tests fail initially (Red phase)
 let mockHandler: SwitchHandler = null as unknown as SwitchHandler;
 
 describe.skip('SwitchHandler Behavior', () => {
