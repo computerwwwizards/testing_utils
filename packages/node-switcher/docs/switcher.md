@@ -1,20 +1,19 @@
 # Node.js Version Switcher Design
 
-A resilient system for switching Node.js versions that tries multiple strategies automatically. When one approach fails, it continues with the next available option, collecting detailed reports of all attempts. Uses Chain of Responsibility pattern for flexible handler management.
+A resilient system for switching Node.js versions that tries multiple strategies automatically. When one approach fails, it continues with the next available option, collecting detailed reports of all attempts. 
 
 ## Core Interfaces
 
 ```typescript
 
-enum HandlerStatus {
+const enum SwitchStatus {
   SUCCESS = "success",
   ERROR = "error"
 }
 
-interface SwitchHandler {
-  next?: SwitchHandler;
-  handle(version: string): Promise<HandlerResult>;
-  setNext(handler: SwitchHandler): SwitchHandler;
+const enum HandlerStatus {
+  SUCCESS = "success",
+  ERROR = "error"
 }
 
 interface HandlerAttempt {
@@ -23,13 +22,13 @@ interface HandlerAttempt {
   message: string;
 }
 
-interface SwitchOptions {
-  handlerOrder?: string[];
+interface SwitchOptions<T> {
+  handlerOrder?: T[];
 }
 
-interface Switcher {
-  register(name: string, handler: NodeSwitchHandler | () => NodeSwitchHandler): Switcher;
-  switchVersion(version: string, options?: SwitchOptions): Promise<HandlerAttempt[]>;
+interface Switcher<T> {
+  register(name: T, handler: () => HandlerAttempt): Switcher;
+  switchVersion(version: string, options?: SwitchOptions<T>): Promise<HandlerAttempt[]>;
 }
 ```
 
@@ -38,18 +37,22 @@ interface Switcher {
 ```typescript
 import { Switcher, NvmHandler, FnmHandler } from 'node-switcher';
 
-const switcher = new Switcher();
-switcher.register('nvm', new NvmHandler());
-switcher.register('fnm', () => new FnmHandler());
+const switcher = new Switcher()
+  .register('nvm', new NvmHandler())
+  .register('fnm', () => new FnmHandler());
 
 const result = await switcher.switchVersion('18.17.0', {
   handlerOrder: ['nvm', 'fnm']
 });
 
-// [
-//   { handlerName: 'nvm', status: HandlerStatus.ERROR, message: 'nvm not found' },
-//   { handlerName: 'fnm', status: HandlerStatus.SUCCESS, message: 'Switched to 18.17.0' }
-// ]
+// {
+//   status: SwitchStatus.SUCCESS,
+//   attemps: [
+//     { handlerName: 'nvm', status: HandlerStatus.ERROR, message: 'nvm not found' },
+//     { handlerName: 'fnm', status: HandlerStatus.SUCCESS, message: 'Switched to 18.17.0' }
+//   ]
+// }
+
 
 ## Implementation Suggestions
 
