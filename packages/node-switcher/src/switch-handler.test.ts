@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { HandlerStatus, type HandlerAttempt } from './types';
+import { type HandlerAttempt, HandlerStatus } from './types';
 
-let mockHandlerFactory: () => HandlerAttempt = null as unknown as () => HandlerAttempt;
+const mockHandlerFactory: () => HandlerAttempt =
+  null as unknown as () => HandlerAttempt;
 
 describe.skip('Handler Factory Behavior', () => {
   describe('Essential handler contract', () => {

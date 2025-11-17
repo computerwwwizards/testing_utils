@@ -1,10 +1,17 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import { HandlerStatus, type HandlerAttempt, type Switcher, type SwitchOptions } from './types';
+import { beforeEach, describe, expect, it } from 'vitest';
+import {
+  type HandlerAttempt,
+  HandlerStatus,
+  type Switcher,
+  type SwitchOptions,
+} from './types';
 
 type HandlerName = 'nvm' | 'fnm' | 'volta';
 
-let mockSwitcher: Switcher<HandlerName> = null as unknown as Switcher<HandlerName>;
-let mockHandlerFactory: () => HandlerAttempt = null as unknown as () => HandlerAttempt;
+const mockSwitcher: Switcher<HandlerName> =
+  null as unknown as Switcher<HandlerName>;
+const mockHandlerFactory: () => HandlerAttempt =
+  null as unknown as () => HandlerAttempt;
 
 describe.skip('Switcher Behavior', () => {
   let switcher: Switcher<HandlerName>;
@@ -50,7 +57,7 @@ describe.skip('Switcher Behavior', () => {
         .register('volta', mockHandlerFactory);
 
       const options: SwitchOptions<HandlerName> = {
-        handlerOrder: ['volta', 'nvm', 'fnm']
+        handlerOrder: ['volta', 'nvm', 'fnm'],
       };
 
       const attempts = await switcher.switchVersion('18.17.0', options);
