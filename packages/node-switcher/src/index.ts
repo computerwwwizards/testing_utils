@@ -1,9 +1,11 @@
-
+export { createFnmHandler, FnmHandler } from './fnm-handler';
+export { createNvmHandler, NvmHandler } from './nvm-handler';
+export { Switcher as NodeSwitcher } from './switcher';
 export {
-  HandlerStatus,
   type HandlerAttempt,
-  type HandlerResult,
-  type SwitchOptions,
+  HandlerStatus,
+  type Switcher,
   type SwitchHandler,
-  type Switcher
+  type SwitchOptions,
+  SwitchStatus,
 } from './types';
