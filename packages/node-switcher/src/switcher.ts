@@ -1,6 +1,6 @@
 import {
-  HandlerStatus,
   type HandlerAttempt,
+  HandlerStatus,
   type Switcher as ISwitcher,
   type SwitchHandler,
   type SwitchOptions,

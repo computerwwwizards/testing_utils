@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { HandlerStatus, type HandlerAttempt } from './types';
+import { type HandlerAttempt, HandlerStatus } from './types';
 
 export class NvmHandler {
   private handlerName = 'nvm';

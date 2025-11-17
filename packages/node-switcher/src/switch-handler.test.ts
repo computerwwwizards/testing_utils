@@ -1,25 +1,63 @@
 import { describe, expect, it } from 'vitest';
-import { type HandlerAttempt, HandlerStatus } from './types';
+import { createFnmHandler, createNvmHandler } from './index';
+import { HandlerStatus } from './types';
 
-const mockHandlerFactory: () => HandlerAttempt =
-  null as unknown as () => HandlerAttempt;
+describe('Handler Factory Behavior', () => {
+  describe('NVM Handler', () => {
+    it('should create a handler function', () => {
+      const handler = createNvmHandler();
 
-describe.skip('Handler Factory Behavior', () => {
-  describe('Essential handler contract', () => {
-    it('should return attempt with success status', () => {
-      const attempt = mockHandlerFactory();
-
-      expect(attempt.status).toBe(HandlerStatus.SUCCESS);
-      expect(attempt.message).toContain('18.17.0');
-      expect(attempt.handlerName).toBeDefined();
+      expect(handler).toBeDefined();
+      expect(typeof handler).toBe('function');
     });
 
-    it('should return attempt with error status', () => {
-      const attempt = mockHandlerFactory();
+    it('should return a promise when called', () => {
+      const handler = createNvmHandler();
+      const result = handler('18.17.0');
 
-      expect(attempt.status).toBe(HandlerStatus.ERROR);
-      expect(attempt.message).toContain('failed');
-      expect(attempt.handlerName).toBeDefined();
+      expect(result).toBeInstanceOf(Promise);
+    });
+
+    it('should return handler attempt structure', async () => {
+      const handler = createNvmHandler();
+      const attempt = await handler('18.17.0');
+
+      expect(attempt).toHaveProperty('handlerName');
+      expect(attempt).toHaveProperty('status');
+      expect(attempt).toHaveProperty('message');
+      expect(attempt.handlerName).toBe('nvm');
+      expect([HandlerStatus.SUCCESS, HandlerStatus.ERROR]).toContain(
+        attempt.status,
+      );
+    });
+  });
+
+  describe('FNM Handler', () => {
+    it('should create a handler function', () => {
+      const handler = createFnmHandler();
+
+      expect(handler).toBeDefined();
+      expect(typeof handler).toBe('function');
+    });
+
+    it('should return a promise when called', () => {
+      const handler = createFnmHandler();
+      const result = handler('18.17.0');
+
+      expect(result).toBeInstanceOf(Promise);
+    });
+
+    it('should return handler attempt structure', async () => {
+      const handler = createFnmHandler();
+      const attempt = await handler('18.17.0');
+
+      expect(attempt).toHaveProperty('handlerName');
+      expect(attempt).toHaveProperty('status');
+      expect(attempt).toHaveProperty('message');
+      expect(attempt.handlerName).toBe('fnm');
+      expect([HandlerStatus.SUCCESS, HandlerStatus.ERROR]).toContain(
+        attempt.status,
+      );
     });
   });
 });
