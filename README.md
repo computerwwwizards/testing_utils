@@ -6,3 +6,4 @@ This project provides a series of utilities and helpers designed to assist with 
 ## Roadmap
 
 - [] Create pipeline for publishing packages 
+- [] Try to separate the precedence resolver from the node inferer or do re-exports

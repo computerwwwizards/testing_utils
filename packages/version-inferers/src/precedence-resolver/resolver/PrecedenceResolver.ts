@@ -1,4 +1,5 @@
 
+import { VersionSourceProvider } from '../stream-source/types';
 import { 
   Conflict, 
   CollectResult, 
@@ -6,15 +7,14 @@ import {
   ResolveResult, 
   PrecedenceResolver, 
   ConflictStrategy, 
-  VersionSource, 
   SourceName 
 } from './types';
 
-class NodeVersionPrecedenceResolver implements PrecedenceResolver<SourceName> {
-  private sources: Map<SourceName, VersionSource> = new Map();
+class VersionPrecedenceResolver<T extends string> implements PrecedenceResolver<T> {
+  private sources: Map<T, VersionSourceProvider> = new Map();
   private lastConflicts: Conflict[] = [];
 
-  registerSource(name: SourceName, provider: VersionSource): PrecedenceResolver {
+  registerSource(name: T, provider: VersionSourceProvider): PrecedenceResolver {
     this.sources.set(name, provider);
     return this;
   }
@@ -27,10 +27,16 @@ class NodeVersionPrecedenceResolver implements PrecedenceResolver<SourceName> {
     return { data: versions, conflicts };
   }
 
-  async resolveVersion(options: ResolveOptions<SourceName>): Promise<ResolveResult> {
-    const { order, conflictStrategy } = options;
+  async resolveVersion(options: ResolveOptions<T> = {}): Promise<ResolveResult> {
+    const { 
+      order = [...this.sources.keys()], 
+      conflictStrategy  = ConflictStrategy.STOP_ON_FIRST
+    } = options;
+
     const data = await this.collectVersionsFromOrder(order);
+
     const conflicts = this.detectConflicts(data);
+
     this.lastConflicts = conflicts;
 
     if (conflicts.length > 0 && conflictStrategy === ConflictStrategy.STOP_ON_FIRST) {
@@ -50,33 +56,37 @@ class NodeVersionPrecedenceResolver implements PrecedenceResolver<SourceName> {
     return this.lastConflicts;
   }
 
-  private async collectVersionsFromSources(): Promise<Record<SourceName, string | null>> {
-    const versions: Record<SourceName, string | null> = {
+  private async collectVersionsFromSources(): Promise<Record<T, string | null>> {
+    const versions: Record<string, string | null> = {
       nvmrc: null,
       packageJson: null,
       ciYaml: null
     };
 
     for (const [name, provider] of Array.from(this.sources.entries())) {
-      versions[name as SourceName] = await provider.getVersion();
+      if(typeof provider === 'function')
+        versions[name as SourceName] = await provider();
+      else
+        versions[name as SourceName] = await provider.getVersion();
     }
 
     return versions;
   }
 
-  private async collectVersionsFromOrder(order: SourceName[]): Promise<Record<SourceName, string | null>> {
-    const data: Record<SourceName, string | null> = {
-      nvmrc: null,
-      packageJson: null,
-      ciYaml: null
-    };
+  private async collectVersionsFromOrder(order: T[]): Promise<Record<T, string | null>> {
+    const data: Record<T, string | null> = {} as any;
 
     for (const name of order) {
       const provider = this.sources.get(name);
       if (!provider) {
         throw new Error(`Source '${name}' is not registered.`);
       }
-      data[name] = await provider.getVersion();
+      if(typeof provider === 'function'){
+        data[name] = await provider();
+      }else{
+        data[name] = await provider.getVersion();
+      }
+      
     }
 
     return data;
@@ -93,16 +103,16 @@ class NodeVersionPrecedenceResolver implements PrecedenceResolver<SourceName> {
   }
 
   private findFirstAvailableVersion(
-    order: SourceName[], 
-    data: Record<SourceName, string | null>
+    order: T[], 
+    data: Record<T, string | null>
   ): string | null {
     return order
       .map(name => data[name])
       .find(version => version !== null) ?? null;
   }
 
-  private detectConflicts(data: Record<SourceName, string | null>): Conflict[] {
-    const entries = Object.entries(data) as [SourceName, string | null][];
+  private detectConflicts(data: Record<T, string | null>): Conflict[] {
+    const entries = Object.entries(data) as [T, string | null][];
     const conflicts: Conflict[] = [];
 
     for (let i = 0; i < entries.length; i++) {
@@ -127,5 +137,5 @@ class NodeVersionPrecedenceResolver implements PrecedenceResolver<SourceName> {
   }
 }
 
-export { NodeVersionPrecedenceResolver };
-export default NodeVersionPrecedenceResolver;
+export { VersionPrecedenceResolver as NodeVersionPrecedenceResolver };
+export default VersionPrecedenceResolver;

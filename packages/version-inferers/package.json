@@ -1,0 +1,65 @@
+{
+  "name": "@computerwwwizards/version-inferer",
+  "version": "0.0.1",
+  "description": "A flexible, source-agnostic library for inferring and resolving configuration values from multiple sources with configurable precedence and conflict handling strategies",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "author": "shadowrunner8095",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/computerwwwizards/version-inferer.git"
+  },
+  "keywords": [
+    "version",
+    "inference",
+    "node-version",
+    "nvmrc",
+    "package-json",
+    "ci-cd",
+    "configuration",
+    "resolver",
+    "precedence",
+    "conflict-resolution"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "require": "./dist/index.cjs"
+      }
+    },
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "docs"
+  ],
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "rslib build",
+    "check": "biome check --write",
+    "dev": "rslib build --watch",
+    "format": "biome format --write",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.2",
+    "@rslib/core": "^0.17.1",
+    "@types/node": "^24.10.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.6"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
