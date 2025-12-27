@@ -10,6 +10,26 @@ export async function readStream(stream: NodeJS.ReadableStream): Promise<string>
 }
 
 /**
+ * Safely attempts to close/destroy a stream if supported by its implementation.
+ * Falls back gracefully when methods are unavailable.
+ */
+export function cleanupStream(stream: NodeJS.ReadableStream): void {
+  const s: any = stream as any;
+  try {
+    if (typeof s.destroy === 'function') {
+      s.destroy();
+      return;
+    }
+    if (typeof s.close === 'function') {
+      s.close();
+      return;
+    }
+  } catch {
+    // Ignore cleanup errors
+  }
+}
+
+/**
  * Gets a value from an object by dot-separated path
  * @param obj - The object to traverse
  * @param path - Dot-separated path (e.g., "jobs.build.steps.0.with.node-version")
